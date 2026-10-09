@@ -61,7 +61,7 @@ class Portrait:
         if not self.animated:
             return self.frames[0]
         position = (elapsed_seconds * 1000.0) % self.total_ms
-        for frame, duration in zip(self.frames, self.durations):
+        for frame, duration in zip(self.frames, self.durations, strict=True):
             position -= duration
             if position < 0:
                 return frame

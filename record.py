@@ -86,7 +86,7 @@ def counts(y):
     if len(y) == 0:
         return {}
     labels, totals = np.unique(y, return_counts=True)
-    return dict(zip(labels, totals))
+    return dict(zip(labels, totals, strict=True))
 
 
 def main():

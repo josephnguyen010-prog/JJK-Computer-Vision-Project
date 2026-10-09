@@ -103,9 +103,3 @@ export class Classifier {
     };
   }
 }
-
-export async function loadClassifier(url = "./model.json") {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`Could not load model from ${url}: ${response.status}`);
-  return new Classifier(await response.json());
-}

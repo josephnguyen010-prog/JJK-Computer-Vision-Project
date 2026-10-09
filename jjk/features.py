@@ -138,7 +138,7 @@ def hands_from_result(result):
     landmark_sets = getattr(result, "hand_landmarks", None) or []
     handedness_sets = getattr(result, "handedness", None) or []
 
-    for landmarks, handedness in zip(landmark_sets, handedness_sets):
+    for landmarks, handedness in zip(landmark_sets, handedness_sets, strict=True):
         if not handedness:
             continue
         label = handedness[0].category_name

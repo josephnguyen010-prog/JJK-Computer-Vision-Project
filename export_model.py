@@ -69,7 +69,7 @@ def main():
         # so the JS can multiply in the same order and get the same rounding.
         "layers": [
             {"w": weight.tolist(), "b": bias.tolist()}
-            for weight, bias in zip(net.coefs_, net.intercepts_)
+            for weight, bias in zip(net.coefs_, net.intercepts_, strict=True)
         ],
         "activation": net.activation,
         "output": net.out_activation_,

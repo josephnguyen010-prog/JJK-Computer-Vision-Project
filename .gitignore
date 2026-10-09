@@ -12,3 +12,6 @@ models/classifier.joblib
 
 # Snapshots of you taken by identify.py, for matching signs to class names
 identify/
+
+# Output of build_web.py
+dist/

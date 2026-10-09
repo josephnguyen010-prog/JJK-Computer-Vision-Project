@@ -21,7 +21,6 @@ import shutil
 from pathlib import Path
 
 import cv2
-import numpy as np
 
 from detect import CONFIDENCE, SignDetector
 from jjk.features import hands_from_result

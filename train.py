@@ -111,7 +111,7 @@ def audit(y, groups):
     if len(labels) < 2:
         problems.append("Need at least two classes -- record more signs.")
 
-    for label, total in zip(labels, totals):
+    for label, total in zip(labels, totals, strict=True):
         bursts = len(np.unique(groups[y == label]))
         if total < MIN_SAMPLES_PER_CLASS:
             problems.append(f"{label}: only {total} samples (want {MIN_SAMPLES_PER_CLASS}+)")
@@ -226,7 +226,7 @@ def main():
     width = max(len(label) for label in labels) + 2
     print("Confusion (rows = actual, cols = predicted):\n")
     print(" " * width + "".join(f"{i:>7}" for i in range(len(labels))))
-    for i, (label, row) in enumerate(zip(labels, matrix)):
+    for i, (label, row) in enumerate(zip(labels, matrix, strict=True)):
         cells = "".join(f"{value:>7}" for value in row)
         print(f"{f'{i} {label}':<{width}}{cells}")
     print("\nOff-diagonal pairs are the signs worth re-recording together.")

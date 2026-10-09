@@ -1,44 +1,43 @@
 # Jujutsu Kaisen hand sign recognition
 
-Throw a JJK hand sign at your webcam. Cursed energy gathers at your fingertips,
-a ring closes, and the domain expands.
+Throw a JJK hand sign at your webcam and it names the character. Cursed energy
+gathers at your fingertips, a ring closes, and the domain expands.
 
-MediaPipe finds the hand landmarks; a small MLP trained on your own recordings
+MediaPipe finds the hand landmarks; a small MLP trained on my own recordings
 classifies the sign; a charge-up state machine decides when to actually fire.
+It runs two ways: a Python desktop app, and a browser build (in `web/`) that
+runs the same model in plain JavaScript, so no video ever leaves the tab.
 
 ## Setup
 
-Already done — dependencies are installed in `.venv` and the MediaPipe landmarker
-model has been downloaded. To run anything:
-
 ```
-.venv\Scripts\python.exe view_signs.py
+python -m venv .venv
+.venv\Scripts\Activate.ps1          # or: source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
-(or activate the venv first with `.venv\Scripts\Activate.ps1`.)
+The MediaPipe hand landmarker model downloads itself on first run.
 
-## The v1 vocabulary
+## The vocabulary
 
-Four signs plus idle, ordered easiest-first. Keys are what you press in `record.py`.
+Five signs plus idle. Keys are what you press in `record.py`.
 
 | Key | Sign | Shape |
 |---|---|---|
 | `0` | idle | anything that isn't a sign |
-| `1` | Malevolent Shrine | two closed fists, held apart |
-| `2` | Palm Thrust | palm thrust at camera, other hand a raised fist |
-| `3` | Palm and Fist | flat palm forward, fist lower at the chest |
-| `4` | Crossed Hands | two hands crossed perpendicular, fingers interlaced |
-| `5` | Interlocked | hands interlocked at close range — MediaPipe merges these into one detection, which is fine |
+| `1` | Megumi | two closed fists, held apart |
+| `2` | Sukuna | open palm thrust at the camera, other hand a raised fist |
+| `3` | Yuta | flat palm forward, fingers together, fist low at the chest |
+| `4` | Gojo | fingers of one hand crossed through the other (MediaPipe sees one hand) |
+| `5` | Malevolent Shrine | hands interlocked closely, upright at the chest |
 
-Display names for 2, 3 and 4 are placeholders — rename them in
-[jjk/signs.py](jjk/signs.py), it only changes what's drawn on screen.
+Names, record keys and the how-to text shown on the web page all live in
+[jjk/signs.py](jjk/signs.py).
 
 **Deferred, not dropped.** The face-referenced sign (hand over the eye, finger at
-the cheek) can't work on hand landmarks alone — absolute position is normalised
+the cheek) can't work on hand landmarks alone: absolute position is normalised
 away on purpose, so a palm over your eye and a palm anywhere else are the same
-vector. It needs face landmarks added first. The two heavily-interlocked signs,
-where the hands press together and MediaPipe merges them into one detection, are
-worth retrying with `view_signs.py` once the pipeline is proven.
+vector. It needs face landmarks added first.
 
 ## The workflow, in order
 
@@ -141,18 +140,39 @@ knobs are at the top of `detect.py`.
 ## Layout
 
 ```
-view_signs.py     sign viability triage — run this first
-record.py         dataset collection
-train.py          training + honest evaluation
-detect.py         live detection, charge-up, domain expansion
-jjk/features.py   landmark normalisation (the heart of it)
-jjk/tracker.py    camera + MediaPipe, the only file touching the MP API
-jjk/effects.py    particles, glow, domain expansion hit
-jjk/signs.py      the sign vocabulary — edit this to add or rename signs
-tests/            feature invariance + the charge state machine
+view_signs.py      sign viability triage, run this first
+record.py          dataset collection
+train.py           training + honest evaluation
+detect.py          live detection, charge-up, domain expansion
+identify.py        photographs each sign next to the class it is read as
+rename_signs.py    relabel or swap classes in the dataset, then retrain
+export_model.py    exports the model to web/model.json for the browser
+build_web.py       assembles web/ + assets/ into one deployable folder
+jjk/features.py    landmark normalisation (the heart of it)
+jjk/tracker.py     camera + MediaPipe, the only file touching the MP API
+jjk/effects.py     particles, glow, domain expansion hit
+jjk/signs.py       the sign vocabulary, edit this to add or rename signs
+web/               the browser build, a JavaScript port of the above
+tests/             feature invariance, layout, portraits, the charge state machine
 ```
 
-Run the tests with `python -m pytest tests/` — 18 of them, no webcam needed.
+Run the Python tests with `python -m pytest tests/` (no webcam needed). The
+browser side has its own checks:
+
+```
+node web/verify.mjs          # JS classifier matches scikit-learn's output
+node web/detector.test.mjs   # JS charge state machine
+```
+
+## Browser build
+
+```
+python export_model.py       # after retraining
+python build_web.py          # -> dist/, ready to host as static files
+```
+
+The model is a scaler and a two-layer MLP, small enough to run as three matrix
+multiplies in plain JavaScript, so the page needs no ML runtime.
 
 ## Screen layout
 
@@ -171,7 +191,7 @@ normal screen. The character panel stays empty until a sign is recognised.
 ## Character portraits
 
 Drop an image into `assets/characters/` named after the sign — `malevolent_shrine.gif`,
-`interlocked.png` — and it appears beside your hands when that sign is recognised.
+`gojo.png` — and it appears beside your hands when that sign is recognised.
 Nothing else needs editing.
 
 - **Animated GIF and WebP** play on loop at their own frame timing. **PNG/JPG** work too.
