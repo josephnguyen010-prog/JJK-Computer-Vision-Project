@@ -8,6 +8,8 @@ classifies the sign; a charge-up state machine decides when to actually fire.
 It runs two ways: a Python desktop app, and a browser build (in `web/`) that
 runs the same model in plain JavaScript, so no video ever leaves the tab.
 
+**[Try it in the browser →](https://josephnguyen010-prog.github.io/Joseph-Nguyen-Portfolio/jjk/)** (needs a webcam)
+
 ## Setup
 
 ```
